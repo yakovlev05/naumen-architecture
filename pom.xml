@@ -10,7 +10,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>core</module>
-        <module>optional</module>
     </modules>
 
     <properties>
@@ -19,4 +18,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>add-optional</id>
+            <activation>
+                <property>
+                    <name>include.optional</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>
+                    optional
+                </module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
