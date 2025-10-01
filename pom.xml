@@ -19,7 +19,7 @@
 
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
-        <commons-io>1.3.2</commons-io>
+        <commons-io.version>1.3.2</commons-io.version>
     </properties>
 
     <dependencyManagement>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>${commons-io}</version>
+                <version>${commons-io.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
