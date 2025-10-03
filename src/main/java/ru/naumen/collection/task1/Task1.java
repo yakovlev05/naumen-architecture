@@ -1,5 +1,8 @@
 package ru.naumen.collection.task1;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Дано:
  * <pre>
@@ -38,6 +41,8 @@ public class Task1 {
         FOOD_AND_DRINKS
     }
 
+    private final Map<Ticket, Goods> ticketsToGoods = new HashMap<>();
+
     /**
      * Получить товары по билету
      * <p>Сложность алгоритма O(1)</p>
@@ -46,7 +51,6 @@ public class Task1 {
      * <p>Достаточно их определить только для id, т.к. он уникален</p>
      */
     public Goods getGoods(Ticket ticket) {
-        // TODO реализовать
-        return null;
+        return ticketsToGoods.get(ticket);
     }
 }
