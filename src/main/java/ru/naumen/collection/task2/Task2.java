@@ -36,7 +36,7 @@ public class Task2 {
     public static List<User> findDuplicates(Collection<User> collA, Collection<User> collB) {
         Set<User> setB = new HashSet<>(collB);
 
-        List<User> intersection = new LinkedList<>();
+        List<User> intersection = new ArrayList<>();
         for (User user : collA) {
             if (setB.contains(user)) {
                 intersection.add(user);
@@ -50,7 +50,7 @@ public class Task2 {
 /**
  * ОБОСНОВАНИЕ:
  *
- * 1. Одну коллекцию конвертирую в HashSet, другую оставляю как есть. Результат - intersection в LinkedList
+ * 1. Одну коллекцию конвертирую в HashSet, другую оставляю как есть. Результат - intersection в ArrayList
  *
  * 2. Сложность - O(n). Перебираем все элементы в множестве.
  *
@@ -59,7 +59,11 @@ public class Task2 {
  *      2 - Проверка наличия элемента в множестве - O(1)
  *      3 - HashMap может не выдавать O(1), если количество элементов в разы больше чем бакетов.
  *      Но мы в данном случае создаем его через конструктор, а там вместимость уже рассчитывается.
+ *      Для HashMap важно переопределить equals и hashcode. Мы переопределили обе функции в классe User.
+ *      По условию задачи считаем пользователей равными при совпадении всех трёх полей, поэтому equals и hashcode по
+ *      всем полям
  *      4 - Итерация по коллекции - O(n). Мы итерируемся не по set,
  *      потому что set может при итерации не выдавать O(1), если большая разряженность между хэш кодами ключей.
+ *      5 - Добавление в ArrayList - O(1), но при заполнении всего массива - O(n) из-за его пересоздания.
  *
  */
