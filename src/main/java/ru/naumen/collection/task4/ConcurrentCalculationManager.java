@@ -1,10 +1,6 @@
 package ru.naumen.collection.task4;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 /**
@@ -12,15 +8,17 @@ import java.util.function.Supplier;
  */
 public class ConcurrentCalculationManager<T> {
 
-    private final ConcurrentLinkedDeque<Future<T>> results = new ConcurrentLinkedDeque<>();
+    private final BlockingQueue<Future<T>> results = new LinkedBlockingQueue<>();
 
     /**
      * Добавить задачу на параллельное вычисление
      */
     public void addTask(Supplier<T> task) {
-        var future = new FutureTask<>(task::get);
-        results.add(future);
-        future.run();
+        try {
+            results.put(CompletableFuture.supplyAsync(task));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -29,8 +27,8 @@ public class ConcurrentCalculationManager<T> {
      */
     public T getResult() {
         try {
-            return results.poll().get();
-        } catch (Exception e) {
+            return results.take().get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
@@ -39,19 +37,21 @@ public class ConcurrentCalculationManager<T> {
 /**
  * ОБОСНОВАНИЕ:
  *
- * Пояснение к реализации: метод addTask() вызывается в задаче в отдельном потоке,
- * поэтому логично в нем и выполнять действие (или требуется использовать свой Executor?).
- * Осталось только решить вопрос с получением результата, то есть дожидаться его получения. Для этого используем
- * future, который имеет реализованный get, блокирующий поток.
+ * 1. Выбрал коллекцию - LinkedBlockingQueue. Она реализует BlockingQueue.
+ *      - Коллекция потокобезопасна, поэтому можно добавлять задачи из разных потоков - put(...)
+ *      - Коллекция поддерживает блокировку при получении элемента, если элементов в коллекции нет - take()
+ *      - Это очередь. Реализует FIFO - важен такой порядок по условии задачи
+ *      - Выбрал именно на основе связанного списка, потому что у нас операции извлечения
+ *      из начала и добавления в конец - O(1)
  *
- * 1. Использовал коллекцию - ConcurrentLinkedDeque. Это потокобезопасная двунаправленная очередь.
- * Почему очередь - вставка O(1).
- * Есть ещё CopyOnWriteArrayList - но это массивы, вставка O(n)
- * Есть ещё - Collections.synchronizedList() - просто лист с synchronized методами,
- * такой подход (синхронизация) как правило менее эффективен.
+ * 2. Сложность. addTask - O(1), getResult - O(1).
  *
- * 2. Конкретно работа с коллекцией - O(1)
+ * 3. Сложность гарантирована, так как связанный список и операции
+ *  выполняются с началом и концом
  *
- * 3. Сложность добавления в очередь - O(1).
- * !!! Добавляем в конец и получаем так же с конца. Иначе было бы - O(n)
+ *
+ * addTask: вызываем supplyAsync и полученный CompletableFuture кладем в очередь - O(1).
+ * Задача начинает исполняться в ForkJoinPool асинхронно
+ *
+ * getResult: Получение из начала очереди - O(1), далее блокируемся на ожидание завершения Future
  */
