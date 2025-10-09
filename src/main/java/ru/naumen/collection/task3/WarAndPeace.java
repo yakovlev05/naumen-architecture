@@ -19,95 +19,59 @@ public class WarAndPeace {
             "Война и мир.txt");
 
     public static void main(String[] args) {
-        SortedSet<WordCount> words = new TreeSet<>();
-        Map<String, WordCount> wordToCount = new HashMap<>();
+        Map<String, Integer> wordsToCount = new HashMap<>();
 
 
         new WordParser(WAR_AND_PEACE_FILE_PATH)
                 .forEachWord(word -> {
-                    WordCount currWord = wordToCount.get(word);
-                    if (currWord == null) {
-                        currWord = new WordCount(word);
-                        wordToCount.put(word, currWord);
-                    } else {
-                        words.remove(currWord);
-                        currWord.incCount();
-                    }
-                    words.add(currWord);
+                    wordsToCount.put(word, wordsToCount.getOrDefault(word, 0) + 1);
                 });
 
+        Queue<Map.Entry<String, Integer>> top10 = new PriorityQueue<>(Comparator.comparingInt((e) -> -e.getValue()));
+        Queue<Map.Entry<String, Integer>> last10 = new PriorityQueue<>(Comparator.comparingInt(Map.Entry::getValue));
+
+        for (Map.Entry<String, Integer> entry : wordsToCount.entrySet()) {
+            top10.add(entry);
+        }
+
+        for (Map.Entry<String, Integer> entry : wordsToCount.entrySet()) {
+            last10.add(entry);
+        }
 
         System.out.println("TOP 10 наиболее используемых слов:");
-        words.reversed().stream().limit(10).forEach(System.out::println);
+        for (int i = 0; i < 10; i++){
+            System.out.println(top10.poll());
+        }
 
         System.out.println("\nLAST 10 наименее используемых:");
-        words.stream().limit(10).forEach(System.out::println);
-    }
-}
+        for (int i = 0; i < 10; i++){
+            System.out.println(last10.poll());
+        }
 
-class WordCount implements Comparable<WordCount> {
-    private final String word;
-    private int count = 1;
-
-    public WordCount(String word) {
-        this.word = word;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void incCount() {
-        count++;
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (!(o instanceof WordCount wordCount)) return false;
-
-        return word.equals(wordCount.word);
-    }
-
-    @Override
-    public int hashCode() {
-        return word.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "%s - %d раз(а)".formatted(word, count);
-    }
-
-    @Override
-    public int compareTo(WordCount o) {
-        return Integer.compare(count, o.count);
     }
 }
 
 /**
  * ОБОСНОВАНИЕ:
  *
- * 1. Создаю две коллекции - HashMap и TreeSet.
- *      - Почему TreeSet? Хочу быстро получать элементы в отсортированном виде.
- *      TreeSet под капотом представляет собой бинарное дерево, операции вставки, удаления - O(log n).
- *      В конце работы алгоритма без сортировки уже получаем ответ.
- *      - Почему HashMap? Для подсчета слов необходимо обновлять счетчик в объекте WordCount. То есть нужно
- *      получать как то объект. Эту проблему и решает HashMap. Получение и вставка - O(1)
- *      !!! Важно заметить, что при больших объемах данных (превышающее число бакетов) сложность O(1)
- *      может не гарантироваться.
+ * 1.   - Для подсчета частоты выбрал HashMap. HasMap требует определённых equals и hashcode - у строки это
+ *        есть по умолчанию. HashMap идеально подходит для подсчета количества слов. Доступ по ключу O(1), мы можем
+ *        эффективно обновлять счетчик. O(1) достигается за счет хорошей хэш функции, равномерно раскидывающей ключи
+ *        по бакетам.
  *
- * 2. Сложность алгоритма - O(n * log k), где n - число символов в тексте,
- * k - число слов в множестве (то есть уникальных)
+ *        - Для ТОПов выбрал PriorityQueue. PriorityQueue под капотом - бинарная куча. То есть гарантирует, что корень
+ *        наименьший элемент (от определенного компаратора зависит). Вставка и получение элемента - log(n)
  *
- * 3. Прочие моменты.
- *      - Операции с HashMap: получение и вставка - O(1). Про негарантированную сложность писал выше
- *      - Операции с SortedSet: удаление и добавление - O(log m). Может возникнуть вопрос зачем удалять,
- *      а потом вставлять? SortedSet - дерево, местоположение элемента высчитывается при вставке.
- *      Чтобы найти место для нового элемента, в худшем случае необходимо пройти всю высоту дерева - log m
- *      - Финальный ответ. Ответ уже отсортирован в SortedSet. Читаем сначала с конца, а потом с начала.
- *      Метод reversed() - O(1), он ничего не делает, кроме как "переворачивает" дерево, меняет его представление.
+ * 2. Сложность - O(n + log k), где n - число слов в тексте, а k - колво уникальных слов
+ *
+ * 3. - Итерация по всем словам - O(n)
+ *    - Операции put и get для словаря - O(1)
+ *    - Прохождение по wordsToCount для заполнения очередей - O(n)
+ *    - Операции add и poll для PriorityQueue - O(log n)
+ *
+ *
+ *   С предыдущего решения:
+ *   - Улучшил память, избавился от объекта WordCount
+ *   - Разделили операции поиска топов и количества. Теперь сначала просто количество считаем и используем для этого
+ *   самую подходящую коллекцию, а потом строим топ. Раньше пытался сразу все за один проход сделать
  */
