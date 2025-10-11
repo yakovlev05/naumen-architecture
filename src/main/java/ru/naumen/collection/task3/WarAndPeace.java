@@ -19,59 +19,70 @@ public class WarAndPeace {
             "Война и мир.txt");
 
     public static void main(String[] args) {
-        Map<String, Integer> wordsToCount = new HashMap<>();
+        // Итерация быстрее, чем у HashMap, получение элемента - O(1), hashMap и equals у строки уже реализованы
+        Map<String, Integer> wordsToCount = new LinkedHashMap<>();
 
 
         new WordParser(WAR_AND_PEACE_FILE_PATH)
                 .forEachWord(word -> {
-                    wordsToCount.put(word, wordsToCount.getOrDefault(word, 0) + 1);
+                    wordsToCount.put(word, wordsToCount.getOrDefault(word, 0) + 1); // Получение и вставка - O(1)
                 });
 
-        Queue<Map.Entry<String, Integer>> top10 = new PriorityQueue<>(Comparator.comparingInt((e) -> -e.getValue()));
-        Queue<Map.Entry<String, Integer>> last10 = new PriorityQueue<>(Comparator.comparingInt(Map.Entry::getValue));
+        // Ограничение capacity до 11
+        Queue<Map.Entry<String, Integer>> top10 = new PriorityQueue<>(11, Comparator.comparingInt(Map.Entry::getValue));
+        Queue<Map.Entry<String, Integer>> last10 = new PriorityQueue<>(11, Comparator.comparingInt((e) -> -e.getValue()));
 
-        for (Map.Entry<String, Integer> entry : wordsToCount.entrySet()) {
-            top10.add(entry);
+        for (Map.Entry<String, Integer> entry : wordsToCount.entrySet()) { // Итерация - O(n), создание entrySet - O(n)
+            addOrSkip(top10, entry, true); // Происходит за O(log(10)) - получается константа
+            addOrSkip(last10, entry, false); // Происходит за O(log(10)) - получается константа
         }
 
-        for (Map.Entry<String, Integer> entry : wordsToCount.entrySet()) {
-            last10.add(entry);
+
+        dispRes(top10, "TOP 10 наиболее используемых слов:"); // O(10) - не больше 10 элементов
+        System.out.println();
+        dispRes(last10, "LAST 10 наименее используемых:"); // O(10)
+    }
+
+    private static void dispRes(Queue<Map.Entry<String, Integer>> result, String title) {
+        List<Map.Entry<String, Integer>> words = new LinkedList<>();
+        for (int i = 0; i < 10; i++) {
+            words.addFirst(result.poll()); // Итерация по 10 элементам - O(10)
         }
 
-        System.out.println("TOP 10 наиболее используемых слов:");
-        for (int i = 0; i < 10; i++){
-            System.out.println(top10.poll());
-        }
+        System.out.println(title);
+        words.forEach(kv -> System.out.printf("%s - %d раз(а)%n", kv.getKey(), kv.getValue()));
+    }
 
-        System.out.println("\nLAST 10 наименее используемых:");
-        for (int i = 0; i < 10; i++){
-            System.out.println(last10.poll());
+    private static void addOrSkip(Queue<Map.Entry<String, Integer>> queue, Map.Entry<String, Integer> entry, boolean isBiggest) {
+        if (queue.size() < 10
+            || (isBiggest
+                ? entry.getValue() > queue.peek().getValue()
+                : entry.getValue() < queue.peek().getValue())
+        ) {
+            queue.offer(entry); // Мы ограничиваем размер - сложность константа O(log(10))
+            if (queue.size() > 10) {
+                queue.poll();
+            }
         }
-
     }
 }
 
 /**
  * ОБОСНОВАНИЕ:
+ * 1. Выбранные коллекции:
+ *  -- LinkedHashMap:
+ *      - Доступ и вставка - O(1)
+ *      - Быстрее итерация, чем у HashMap
+ *      - equals и hashcode у строки уже реализован, этим достигается O(1)
+ *  -- PriorityQueue:
+ *      - Вставка и получение - O(log(n)), в нашем случае сократили до O(log(10))
+ *      - Под капотом бинарная куча - первый элемент всегда наименьший (в зависимости от компаратора)
  *
- * 1.   - Для подсчета частоты выбрал HashMap. HasMap требует определённых equals и hashcode - у строки это
- *        есть по умолчанию. HashMap идеально подходит для подсчета количества слов. Доступ по ключу O(1), мы можем
- *        эффективно обновлять счетчик. O(1) достигается за счет хорошей хэш функции, равномерно раскидывающей ключи
- *        по бакетам.
+ * 2. Сложность - O(n)
  *
- *        - Для ТОПов выбрал PriorityQueue. PriorityQueue под капотом - бинарная куча. То есть гарантирует, что корень
- *        наименьший элемент (от определенного компаратора зависит). Вставка и получение элемента - log(n)
- *
- * 2. Сложность - O(n + log k), где n - число слов в тексте, а k - колво уникальных слов
- *
- * 3. - Итерация по всем словам - O(n)
- *    - Операции put и get для словаря - O(1)
- *    - Прохождение по wordsToCount для заполнения очередей - O(n)
- *    - Операции add и poll для PriorityQueue - O(log n)
- *
- *
- *   С предыдущего решения:
- *   - Улучшил память, избавился от объекта WordCount
- *   - Разделили операции поиска топов и количества. Теперь сначала просто количество считаем и используем для этого
- *   самую подходящую коллекцию, а потом строим топ. Раньше пытался сразу все за один проход сделать
+ * 3. - Итерация по все словам - O(n)
+ *    - Создание entrySet() - O(n)
+ *    - Итерация по entrySet() - O(n)
+ *    - Добавление слова в очередь - O(log10)
+ *    - Вывод результата - O(10)
  */
