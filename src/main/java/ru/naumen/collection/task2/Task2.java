@@ -36,7 +36,7 @@ public class Task2 {
     public static List<User> findDuplicates(Collection<User> collA, Collection<User> collB) {
         Set<User> setB = new HashSet<>(collB);
 
-        List<User> intersection = new ArrayList<>();
+        List<User> intersection = new ArrayList<>(Math.min(collA.size(), collB.size()));
         for (User user : collA) {
             if (setB.contains(user)) {
                 intersection.add(user);
@@ -64,6 +64,6 @@ public class Task2 {
  *      всем полям
  *      4 - Итерация по коллекции - O(n). Мы итерируемся не по set,
  *      потому что set может при итерации не выдавать O(1), если большая разряженность между хэш кодами ключей.
- *      5 - Добавление в ArrayList - O(1), но при заполнении всего массива - O(n) из-за его пересоздания.
+ *      5 - Добавление в ArrayList - O(1) (задаем изначальную вместимость, теперь пересоздаваний не будет)
  *
  */
