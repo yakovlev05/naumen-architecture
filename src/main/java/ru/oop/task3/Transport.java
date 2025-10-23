@@ -5,17 +5,7 @@ package ru.oop.task3;
  */
 public interface Transport extends Positioned {
     /**
-     * Подъехать к точке назначения как можно ближе
+     * Подъехать к точке назначения
      */
-    void goToNearest(Position destination);
-
-    /**
-     * Сесть в транспорт
-     */
-    void getIn(Person person);
-
-    /**
-     * Покинуть транспорт
-     */
-    void getOut(Person person);
+    void driveTo(Person person, Position destination);
 }

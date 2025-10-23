@@ -25,16 +25,15 @@ public class MainTask3 {
     /**
      * Переехать из текущего места в заданную точку
      * на любом транспорте
+     *
      * @see Person
      * @see Position
      */
-    public void moveTo(List<Transport> transports, Person person, Position destination) {
+    public void moveTo(Person person, Position destination, List<Transport> transports) {
         for (int i = 0; i < transports.size(); i++) {
             Transport currentTransport = transports.get(i);
             person.walk(currentTransport.getPosition());
-            currentTransport.getIn(person);
-            currentTransport.goToNearest(destination);
-            currentTransport.getOut(person);
+            currentTransport.driveTo(person, destination);
         }
         person.walk(destination);
         assert person.getPosition() == destination;
