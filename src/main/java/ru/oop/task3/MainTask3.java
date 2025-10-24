@@ -30,10 +30,9 @@ public class MainTask3 {
      * @see Position
      */
     public void moveTo(Person person, Position destination, List<Transport> transports) {
-        for (int i = 0; i < transports.size(); i++) {
-            Transport currentTransport = transports.get(i);
-            person.walk(currentTransport.getPosition());
-            currentTransport.driveTo(person, destination);
+        for (Transport transport : transports) {
+            person.walk(transport.getPosition());
+            transport.driveTo(person, destination);
         }
         person.walk(destination);
         assert person.getPosition() == destination;
