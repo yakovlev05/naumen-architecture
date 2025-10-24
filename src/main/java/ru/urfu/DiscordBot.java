@@ -6,6 +6,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
+import ru.urfu.updates.HandlerRegistry;
 
 /**
  * Дискорд бот
@@ -13,11 +14,13 @@ import discord4j.core.object.entity.channel.MessageChannel;
 public class DiscordBot {
 
     private final String token;
+    private final HandlerRegistry handlerRegistry;
 
     private GatewayDiscordClient client;
 
-    public DiscordBot(String token) {
+    public DiscordBot(String token, HandlerRegistry handlerRegistry) {
         this.token = token;
+        this.handlerRegistry = handlerRegistry;
     }
 
     /**
@@ -40,7 +43,8 @@ public class DiscordBot {
                     if (isUser) {
                         String chatId = eventMessage.getChannelId().asString();
                         String messageFromUser = eventMessage.getContent();
-                        // TODO обработайте сообщение от пользователя (messageFromUser)
+                        String responseMessage = handlerRegistry.handle(messageFromUser);
+                        sendMessage(chatId, responseMessage);
                     }
                 });
         System.out.println("Discord бот запущен");

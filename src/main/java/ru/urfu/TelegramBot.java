@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import ru.urfu.updates.HandlerRegistry;
 
 /**
  * Телеграм бот
@@ -14,10 +15,12 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final String telegramBotName;
+    private final HandlerRegistry handlerRegistry;
 
-    public TelegramBot(String telegramBotName, String token) {
+    public TelegramBot(String telegramBotName, String token, HandlerRegistry handlerRegistry) {
         super(token);
         this.telegramBotName = telegramBotName;
+        this.handlerRegistry = handlerRegistry;
     }
 
     /**
@@ -39,7 +42,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             Message updateMessage = update.getMessage();
             Long chatId = updateMessage.getChatId();
             String messageFromUser = updateMessage.getText();
-            // TODO обработайте сообщение от пользователя (messageFromUser)
+            String responseMessage = handlerRegistry.handle(messageFromUser);
+            sendMessage(chatId, responseMessage);
         }
     }
 
@@ -48,7 +52,7 @@ public class TelegramBot extends TelegramLongPollingBot {
      * @param chatId идентификатор чата
      * @param message текст сообщения
      */
-    private void sendMessage(String chatId, String message) {
+    private void sendMessage(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
