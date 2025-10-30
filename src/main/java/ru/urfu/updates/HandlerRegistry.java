@@ -13,7 +13,7 @@ public class HandlerRegistry {
 
     private static final String PLACEHOLDER = "No action!";
 
-    private final List<Handler> HANDLERS = new LinkedList<>();
+    private final List<Handler> handlers = new LinkedList<>();
 
     /**
      * Регистрация обработчиков. При равных условиях, обработчик выше имеет выше приоритет
@@ -26,7 +26,7 @@ public class HandlerRegistry {
      * Обработать сообщение пользователя и получить ответ
      */
     public String handle(String messageFromUser) {
-        for (Handler handler : HANDLERS) {
+        for (Handler handler : handlers) {
             if (handler.canHandle(messageFromUser)) {
                 return handler.handle(messageFromUser);
             }
@@ -39,6 +39,6 @@ public class HandlerRegistry {
      * Регистрация одного обработчика
      */
     private void register(Handler handler) {
-        HANDLERS.add(handler);
+        handlers.add(handler);
     }
 }

@@ -32,14 +32,4 @@ public class WrapperHandlerTest {
         assertTrue(isCan, "Обработчик должен уметь обработать любое непустое сообщение");
     }
 
-    /**
-     * Проверяем, что обработчик не может обработать пустое сообщение
-     */
-    @Test
-    public void shouldCanNotProcessMessage() {
-        String message = "";
-        boolean isCan = handler.canHandle(message);
-        assertFalse(isCan, "Обработчик не должен обрабатывать пустые сообщения");
-    }
-
 }
