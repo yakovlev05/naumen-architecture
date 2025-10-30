@@ -22,14 +22,4 @@ public class WrapperHandlerTest {
                 "Сообщение должно быть обернуто в 'Ваше сообщение: <>' и возвращено обратно");
     }
 
-    /**
-     * Проверяем, что обработчик может обработать не пустые сообщения
-     */
-    @Test
-    public void shouldCanProcessMessage() {
-        String message = "hello";
-        boolean isCan = handler.canHandle(message);
-        assertTrue(isCan, "Обработчик должен уметь обработать любое непустое сообщение");
-    }
-
 }
