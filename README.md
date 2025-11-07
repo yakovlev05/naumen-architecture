@@ -1,8 +1,17 @@
-# Задание на тему "Коллекции в Java"
+# Задание по теме "Хитрости тестирования"
 
-Нужно выполнить следующие задачи:
+**Задание нужно отправить в виде Pull Request**
 
-1. [Задача 1](src/main/java/ru/naumen/collection/task1/Task1.java)
-2. [Задача 2](src/main/java/ru/naumen/collection/task2/Task2.java)
-3. [Задача 3](src/main/java/ru/naumen/collection/task3/WarAndPeace.java)
-4. [Задача 4* (по желанию)](src/main/java/ru/naumen/collection/task4/Task4.java)
+1. Написать правильные тесты на [NoteLogic](src/main/java/example/note/NoteLogic.java) (все они должны падать)
+2. Написать тесты на методы добавления и удаления класса [Container](src/main/java/example/container/Container.java) (все тесты должны проходить)
+3. Написать тесты на логику бота [BotLogic](src%2Fmain%2Fjava%2Fexample%2Fbot%2FBotLogic.java) (все тесты должны проходить)
+
+**Все тесты должны иметь JavaDoc**
+
+Рекомендуется запустить бота BotLogic через класс [ConsoleBot](src/main/java/example/bot/ConsoleBot.java) и посмотреть как он работает. Это поможет написать тесты.
+
+Нужно написать следующие тесты:
+
+   * тест на команду /test
+   * тест на команду /notify
+   * тест на команду /repeat
