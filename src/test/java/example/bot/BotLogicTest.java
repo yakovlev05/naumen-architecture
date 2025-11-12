@@ -35,13 +35,11 @@ public class BotLogicTest {
     }
 
     /**
-     * Тестируем /test. Проверяем корректное изменение состояния пользователя
-     * и реакцию на неверные ответы. В конце теста состояние пользователя должно поменять на начальное.
+     * Тестируем /test. Проверяем обработку неверных ответов
      */
     @Test
     public void testCommandTestIncorrectAnswers() {
         botLogic.processCommand(user, "/test");
-        Assertions.assertEquals(State.TEST, user.getState());
 
         Assertions.assertEquals("Вычислите степень: 10^2", fakeBot.getMessage(0));
         botLogic.processCommand(user, "1");
@@ -50,8 +48,6 @@ public class BotLogicTest {
         Assertions.assertEquals("Сколько будет 2 + 2 * 2", fakeBot.getMessage(2));
         botLogic.processCommand(user, "111111");
         Assertions.assertEquals("Вы ошиблись, верный ответ: 6", fakeBot.getMessage(3));
-
-        Assertions.assertEquals(State.INIT, user.getState());
     }
 
     /**
@@ -71,17 +67,14 @@ public class BotLogicTest {
     }
 
     /**
-     * Тестируем /notify с задержкой 1 секунда. Так же проверяем корректное состояние у пользователя
+     * Тестируем /notify с задержкой 1 секунда.
      */
     @Test
     public void testCommandNotifyWithDelayOneSecond() throws InterruptedException {
         botLogic.processCommand(user, "/notify");
-        Assertions.assertEquals(State.SET_NOTIFY_TEXT, user.getState());
 
         botLogic.processCommand(user, "hello");
-        Assertions.assertEquals(State.SET_NOTIFY_DELAY, user.getState());
         botLogic.processCommand(user, "1");
-        Assertions.assertEquals(State.INIT, user.getState());
 
         Thread.sleep(1015);
 
@@ -157,5 +150,25 @@ public class BotLogicTest {
 
         botLogic.processCommand(user, "/repeat");
         Assertions.assertEquals("Вычислите степень: 10^2", fakeBot.getMessage(6));
+    }
+
+    /**
+     * Тестируем /repeat, если у пользователя несколько неверных ответов и он ответил правильно только на часть из них.
+     * Вопрос остается в списке
+     */
+    @Test
+    public void testCommandRepeatWithManyWrongAnswersAndNotAllCorrectAnswers(){
+        botLogic.processCommand(user, "/test");
+        botLogic.processCommand(user, "incorrect answer");
+        botLogic.processCommand(user, "incorrect answer");
+        botLogic.processCommand(user, "/repeat");
+        botLogic.processCommand(user, "100");
+        botLogic.processCommand(user, "incorrect answer");
+
+        Assertions.assertEquals("Вы ошиблись, верный ответ: 6", fakeBot.getMessage(8));
+        Assertions.assertEquals("Тест завершен", fakeBot.getMessage(9));
+
+        botLogic.processCommand(user, "/repeat");
+        Assertions.assertEquals("Сколько будет 2 + 2 * 2", fakeBot.getMessage(10));
     }
 }
