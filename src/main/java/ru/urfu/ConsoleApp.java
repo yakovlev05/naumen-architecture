@@ -23,7 +23,8 @@ import java.util.Scanner;
 @SpringBootApplication
 public class ConsoleApp implements CommandLineRunner {
 
-    public static final Path OUTPUT_DIR = Path.of(System.getProperty("user.home"), "lessonSOLID");
+    public static final Path OUTPUT_DIR = Path.of(System.getProperty("user.home"),
+            "IdeaProjects/naumen-architecture");
 
     private final DocumentService documentService;
 
