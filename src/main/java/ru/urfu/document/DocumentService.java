@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class DocumentService {
 
-    private final List<Document> documents = new ArrayList<>();
+    private final List<MyDocument> myDocuments = new ArrayList<>();
 
     /**
      * Импортирует текстовый файл и добавляет его как документ в память.
@@ -30,15 +30,15 @@ public class DocumentService {
         }
 
         String content = Files.readString(path);
-        documents.add(new Document(path.getFileName().toString(), content));
+        myDocuments.add(new MyDocument(path.getFileName().toString(), content));
         System.out.println("Документ импортирован: " + path.getFileName());
     }
 
     /**
      * Возвращает список всех импортированных документов.
      */
-    public List<Document> list() {
-        return Collections.unmodifiableList(documents);
+    public List<MyDocument> list() {
+        return Collections.unmodifiableList(myDocuments);
     }
 
     /**
@@ -47,11 +47,11 @@ public class DocumentService {
      * @param index индекс документа
      * @return Optional с документом или пустой Optional, если индекс неверен
      */
-    public Optional<Document> getDocument(int index) {
-        if (index < 0 || index >= documents.size()) {
+    public Optional<MyDocument> getDocument(int index) {
+        if (index < 0 || index >= myDocuments.size()) {
             return Optional.empty();
         }
-        return Optional.of(documents.get(index));
+        return Optional.of(myDocuments.get(index));
     }
 
     /**
@@ -61,7 +61,7 @@ public class DocumentService {
      * @param content текстовое содержимое документа
      */
     public void createDocument(String name, String content) {
-        documents.add(new Document(name, content));
+        myDocuments.add(new MyDocument(name, content));
     }
 
 }
