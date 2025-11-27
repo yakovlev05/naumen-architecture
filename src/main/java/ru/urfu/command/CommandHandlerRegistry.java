@@ -6,6 +6,7 @@ import ru.urfu.command.handlers.CommandHandler;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -20,7 +21,7 @@ public class CommandHandlerRegistry {
         this.handlers = handlers.stream()
                 .collect(Collectors.toMap(
                         CommandHandler::getCommandName,
-                        handler -> handler
+                        Function.identity()
                 ));
     }
 

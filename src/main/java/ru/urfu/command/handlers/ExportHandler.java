@@ -4,12 +4,13 @@ import org.springframework.stereotype.Component;
 import ru.urfu.document.DocumentService;
 import ru.urfu.document.MyDocument;
 import ru.urfu.exporter.DocumentExporter;
-import ru.urfu.exporter.DocumentExporterFactory;
+import ru.urfu.exporter.DocumentExporterRegistry;
 import ru.urfu.exporter.ExporterNotFound;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -24,16 +25,19 @@ public class ExportHandler implements CommandHandler {
 
     private final Scanner scanner;
     private final DocumentService documentService;
-    private final DocumentExporterFactory documentExporterFactory;
+    private final DocumentExporterRegistry documentExporterRegistry;
+    private final List<DocumentExporter> exporters;
 
     public ExportHandler(
             Scanner scanner,
             DocumentService documentService,
-            DocumentExporterFactory documentExporterFactory
+            DocumentExporterRegistry documentExporterRegistry,
+            List<DocumentExporter> exporters
     ) {
         this.scanner = scanner;
         this.documentService = documentService;
-        this.documentExporterFactory = documentExporterFactory;
+        this.documentExporterRegistry = documentExporterRegistry;
+        this.exporters = exporters;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class ExportHandler implements CommandHandler {
 
         MyDocument myDocument = documentOptional.get();
 
-        System.out.print("Введите формат (txt/pdf): ");
+        System.out.print(buildMessage());
         String format = scanner.nextLine().trim().toLowerCase();
 
         Path outputPath = buildPath(myDocument.name(), format);
@@ -72,12 +76,22 @@ public class ExportHandler implements CommandHandler {
 
     private void doExport(String format, Path outputPath, MyDocument myDocument) {
         try {
-            DocumentExporter exporter = documentExporterFactory.getExporter(format);
+            DocumentExporter exporter = documentExporterRegistry.getExporter(format);
             exporter.export(myDocument, outputPath.toString());
             System.out.println("Экспорт выполнен: " + outputPath);
         } catch (ExporterNotFound e) {
             System.out.println("Неверный формат");
         }
+    }
+
+    private List<String> getSupportedFormats() {
+        return exporters.stream()
+                .map(DocumentExporter::getFileFormat)
+                .toList();
+    }
+
+    private String buildMessage() {
+        return "Введите формат (%s):".formatted(String.join("/", getSupportedFormats()));
     }
 
     @Override
