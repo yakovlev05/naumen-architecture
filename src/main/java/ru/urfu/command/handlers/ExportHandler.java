@@ -26,7 +26,6 @@ public class ExportHandler implements CommandHandler {
     private final Scanner scanner;
     private final DocumentService documentService;
     private final DocumentExporterRegistry documentExporterRegistry;
-    private final List<DocumentExporter> exporters;
 
     public ExportHandler(
             Scanner scanner,
@@ -37,7 +36,6 @@ public class ExportHandler implements CommandHandler {
         this.scanner = scanner;
         this.documentService = documentService;
         this.documentExporterRegistry = documentExporterRegistry;
-        this.exporters = exporters;
     }
 
     @Override
@@ -84,14 +82,8 @@ public class ExportHandler implements CommandHandler {
         }
     }
 
-    private List<String> getSupportedFormats() {
-        return exporters.stream()
-                .map(DocumentExporter::getFileFormat)
-                .toList();
-    }
-
     private String buildMessage() {
-        return "Введите формат (%s):".formatted(String.join("/", getSupportedFormats()));
+        return "Введите формат (%s):".formatted(String.join("/", documentExporterRegistry.getFormats()));
     }
 
     @Override

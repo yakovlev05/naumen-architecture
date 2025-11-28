@@ -37,4 +37,13 @@ public class DocumentExporterRegistry {
                 .orElseThrow(() -> new ExporterNotFound("Неизвестный тип экспортера: " + type));
     }
 
+    /**
+     * Получить все доступные форматы для экспорта
+     *
+     * @return список форматов
+     */
+    public List<String> getFormats() {
+        return exporters.keySet().stream().toList();
+    }
+
 }
