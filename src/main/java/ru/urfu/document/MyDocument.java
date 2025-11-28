@@ -6,6 +6,6 @@ package ru.urfu.document;
  * @param name    Имя
  * @param content текстовое содержимое документа
  */
-public record Document(String name, String content) {
+public record MyDocument(String name, String content) {
 }
 
